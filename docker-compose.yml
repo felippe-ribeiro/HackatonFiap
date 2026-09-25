@@ -1,0 +1,54 @@
+name: laria-sdr
+
+services:
+  api:
+    build: .
+    command: ["api"]
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - USE_FAKE_LLM=${USE_FAKE_LLM:-false}
+      - LLM_MODEL=${LLM_MODEL:-gpt-4o-mini}
+      - DATABASE_URL=sqlite:////app/data/laria.db
+      - APP_ENV=prod
+    volumes:
+      - laria-data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  dashboard:
+    build: .
+    command: ["dashboard"]
+    ports:
+      - "8501:8501"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - USE_FAKE_LLM=${USE_FAKE_LLM:-false}
+      - LLM_MODEL=${LLM_MODEL:-gpt-4o-mini}
+      - DATABASE_URL=sqlite:////app/data/laria.db
+      - APP_ENV=prod
+    volumes:
+      - laria-data:/app/data
+    depends_on:
+      - api
+
+  # Opcional: bot de Telegram (defina TELEGRAM_BOT_TOKEN no .env para ativar)
+  telegram:
+    build: .
+    command: ["telegram"]
+    profiles: ["telegram"]
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - USE_FAKE_LLM=${USE_FAKE_LLM:-false}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+      - DATABASE_URL=sqlite:////app/data/laria.db
+      - APP_ENV=prod
+    volumes:
+      - laria-data:/app/data
+
+volumes:
+  laria-data:

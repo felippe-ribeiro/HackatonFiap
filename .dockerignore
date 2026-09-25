@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+.git/
+.pytest_cache/
+.ruff_cache/
+data/*.db
+data/index/*.npz
+data/index/*.json
+.env
+*.md
+!README.md
+docs/
+tests/
+*.pdf
